@@ -1,0 +1,12 @@
+{
+    "javabook": {
+        "notebook": {
+            "version": "1.0"
+        },
+        "code": {
+            "lang":    "java",
+            "content": "package main;\n\npublic class Main {\n\tpublic static void main(String[] args) {\n\t\tSystem.out.println(\"Hello World!\");\n\t}\n}\n",
+            "meta":    {}
+        }
+    }
+}
