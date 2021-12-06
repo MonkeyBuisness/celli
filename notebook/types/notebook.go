@@ -37,11 +37,6 @@ type NotebookCellKind int
 // BookType represents book type.
 type BookType string
 
-// FileExtension returns file extension for the book based on the type.
-func (t BookType) FileExtension() string {
-	return string(t)
-}
-
 // SupportedBookTypes returns a slice of supported book type names.
 func SupportedBookTypes() []string {
 	return []string{
