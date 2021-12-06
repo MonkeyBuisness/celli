@@ -16,6 +16,7 @@ jobs:
         id: tag_name
         run: |
           echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
+          echo ${GITHUB_REF#refs/tags/v}
         shell: bash
       - name: Checkout code
         uses: actions/checkout@v2
