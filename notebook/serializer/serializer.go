@@ -57,6 +57,7 @@ type nodeKind int
 type commentNode struct {
 	*baseNode
 
+	payload    []byte
 	serializer types.SerializableComment
 }
 
@@ -153,10 +154,6 @@ func (s *Serializer) parseMarkupContent(content string, opts *Options) ([]docume
 
 		// detect comment payload.
 		cPayload := metaIndices[expPayloadIndex]
-		if err := serializer.SetPayload([]byte(cPayload)); err != nil {
-			return nil, e.ErrMarshalCommentPayload.New(err.Error(),
-				fmt.Sprintf("at position %d:%d", iStart, iEnd))
-		}
 
 		// create comment node.
 		cNode := commentNode{
@@ -166,6 +163,7 @@ func (s *Serializer) parseMarkupContent(content string, opts *Options) ([]docume
 				kind:  nodeKindComment,
 			},
 			serializer: serializer,
+			payload:    []byte(cPayload),
 		}
 		nodes = append(nodes, cNode)
 	}
@@ -210,7 +208,7 @@ func (n textNode) render(notebook *types.NotebookData) error {
 }
 
 func (n commentNode) render(notebook *types.NotebookData) error {
-	return n.serializer.Render(notebook)
+	return n.serializer.Render(notebook, n.payload)
 }
 
 // WithCommentSerializer adds a new comment serializer.

@@ -18,9 +18,7 @@ const (
 )
 
 // CodeCommentSerializer represents <!-- code:{...} --> comment serializer.
-type CodeCommentSerializer struct {
-	payload *codeCommentPayload
-}
+type CodeCommentSerializer struct{}
 
 type codeCommentPayload struct {
 	LanguageID string                 `json:"lang"`
@@ -31,9 +29,7 @@ type codeCommentPayload struct {
 
 // NewCodeCommentSerializer returns new CodeCommentSerializer instance.
 func NewCodeCommentSerializer() CodeCommentSerializer {
-	return CodeCommentSerializer{
-		payload: &codeCommentPayload{},
-	}
+	return CodeCommentSerializer{}
 }
 
 // Key returns the name of the serializable comment key.
@@ -42,61 +38,56 @@ func (s CodeCommentSerializer) Key() string {
 }
 
 // Render renders serializer data to the notebook.
-func (s CodeCommentSerializer) Render(notebook *types.NotebookData) error {
-	if s.payload.URI != "" {
-		if err := readURIContent(s.payload.URI, &s.payload.Content); err != nil {
+func (s CodeCommentSerializer) Render(notebook *types.NotebookData, payload []byte) error {
+	var code codeCommentPayload
+	if err := json.Unmarshal(payload, &code); err != nil {
+		return err
+	}
+
+	if code.URI != "" {
+		content, err := readURIContent(code.URI)
+		if err != nil {
 			return fmt.Errorf("could not read URI content: %v", err)
 		}
+		code.Content = string(content)
 	}
 
 	notebook.Cells = append(notebook.Cells, types.NotebookCellData{
-		LanguageID: s.payload.LanguageID,
-		Content:    s.payload.Content,
+		LanguageID: code.LanguageID,
+		Content:    code.Content,
 		Kind:       types.NotebookCellKindCode,
-		Metadata:   s.payload.Meta,
+		Metadata:   code.Meta,
 	})
 
 	return nil
 }
 
-// SetPayload sets payload data to the serializer.
-func (s CodeCommentSerializer) SetPayload(data []byte) error {
-	return json.Unmarshal(data, s.payload)
-}
-
-func readURIContent(uri string, content *string) error {
-	var dataStr string
-	defer func() {
-		content = &dataStr
-	}()
-
+func readURIContent(uri string) ([]byte, error) {
 	isFile := strings.HasPrefix(uri, filePrefix)
 	if isFile {
 		filePath := strings.TrimPrefix(uri, filePrefix)
 
 		data, err := os.ReadFile(filepath.Clean(filePath))
 		if err != nil {
-			return err
+			return nil, err
 		}
-		dataStr = string(data)
 
-		return nil
+		return data, nil
 	}
 
 	//nolint:gosec,gocritic,bodyclose // itэs entirely the responsibility of the author.
 	resp, err := http.Get(uri)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer utils.Close(resp.Body)
 
 	var buf bytes.Buffer
 	if _, err := buf.ReadFrom(resp.Body); err != nil {
-		return err
+		return nil, err
 	}
-	dataStr = buf.String()
 
-	return nil
+	return buf.Bytes(), nil
 }
 
 // NewCode creates new <!-- code:{} --> comment string.

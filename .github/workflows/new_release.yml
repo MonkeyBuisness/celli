@@ -28,7 +28,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.changelog_reader.outputs.version }}
+          tag_name: v${{ steps.changelog_reader.outputs.version }}
           release_name: Release ${{ steps.changelog_reader.outputs.version }}
           body: ${{ steps.changelog_reader.outputs.changes }}
           draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}

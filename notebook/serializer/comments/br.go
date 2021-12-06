@@ -18,12 +18,7 @@ func (s BrCommentSerializer) Key() string {
 }
 
 // Render renders serializer data to the notebook.
-func (s BrCommentSerializer) Render(notebook *types.NotebookData) error {
-	return nil
-}
-
-// SetPayload sets payload data to the serializer.
-func (s BrCommentSerializer) SetPayload(data []byte) error {
+func (s BrCommentSerializer) Render(_ *types.NotebookData, _ []byte) error {
 	return nil
 }
 

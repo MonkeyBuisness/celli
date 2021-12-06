@@ -32,7 +32,7 @@ Go to the [Releases](https://github.com/MonkeyBuisness/celli/releases) page and 
 ### Install from source (Not recommended)
 ```sh
 # Go 1.16+
-go install -o github.com/MonkeyBuisness/celli@latest
+go install github.com/MonkeyBuisness/celli@latest
 
 # Go version < 1.16
 go get -u github.com/MonkeyBuisness/celli@latest
@@ -94,7 +94,7 @@ The supported serializable comments:
     during the convertaion process.
     In other words, the `<!-- br: -->` comment uses to split markup text into cells.
 3. ```html
-    <!-- autors:[
+    <!-- author:[
         {
             "name": "John Smith",
             "avatar": "https://example.com/john-smith.png",
@@ -119,7 +119,7 @@ The supported serializable comments:
     }
     ```
     during the convertaion process.
-    In other words, the `<!-- authors:[] -->` comment uses to add authors info to the notebook document.
+    In other words, the `<!-- author:[] -->` comment uses to add authors info to the notebook document.
 4. ```html
     <!-- code:{
         "lang": "java",
