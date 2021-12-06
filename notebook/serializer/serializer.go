@@ -91,16 +91,13 @@ func (s *Serializer) SerializeNotebook(
 	content := buf.String()
 
 	// parse markup content.
-	nodes, err := s.parseMarkupContent(content, &opts)
-	if err != nil {
-		return nil, err
-	}
+	nodes := s.parseMarkupContent(content, &opts)
 
 	// render nodes to the notebook document data.
 	return s.renderNotebook(nodes)
 }
 
-func (s *Serializer) parseMarkupContent(content string, opts *Options) ([]documentNode, error) {
+func (s *Serializer) parseMarkupContent(content string, opts *Options) []documentNode {
 	// find all HTML comment blocks inside the document.
 	commentIndices := commentRegexp.FindAllStringIndex(content, -1)
 	if len(commentIndices) == 0 {
@@ -168,7 +165,7 @@ func (s *Serializer) parseMarkupContent(content string, opts *Options) ([]docume
 		nodes = append(nodes, cNode)
 	}
 
-	return optimizeNodes(nodes), nil
+	return optimizeNodes(nodes)
 }
 
 func (s *Serializer) renderNotebook(nodes []documentNode) (*types.NotebookData, error) {
