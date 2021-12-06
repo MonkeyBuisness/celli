@@ -30,8 +30,13 @@ var (
 	)
 )
 
-// SerializerOption represents serializer option model.
-type SerializerOption func(*serializerOptions)
+// Option represents serializer option model.
+type Option func(*Options)
+
+// Options represents serializer configuration model.
+type Options struct {
+	serializers map[string]types.SerializableComment
+}
 
 // Serializer represents notebook serializer implementation.
 type Serializer struct{}
@@ -61,10 +66,6 @@ type textNode struct {
 	content string
 }
 
-type serializerOptions struct {
-	serializers map[string]types.SerializableComment
-}
-
 // New returns new notebook Serializer instance.
 func New() Serializer {
 	return Serializer{}
@@ -72,9 +73,9 @@ func New() Serializer {
 
 // SerializeNotebook converts markup text to the notebook data implementation.
 func (s *Serializer) SerializeNotebook(
-	source io.Reader, opt ...SerializerOption) (*types.NotebookData, error) {
+	source io.Reader, opt ...Option) (*types.NotebookData, error) {
 	// apply incoming options.
-	opts := serializerOptions{
+	opts := Options{
 		serializers: make(map[string]types.SerializableComment),
 	}
 	for _, o := range opt {
@@ -95,11 +96,10 @@ func (s *Serializer) SerializeNotebook(
 	}
 
 	// render nodes to the notebook document data.
-	return s.renderNotebook(nodes, &opts)
+	return s.renderNotebook(nodes)
 }
 
-func (s *Serializer) parseMarkupContent(
-	content string, opts *serializerOptions) ([]documentNode, error) {
+func (s *Serializer) parseMarkupContent(content string, opts *Options) ([]documentNode, error) {
 	// find all HTML comment blocks inside the document.
 	commentIndices := commentRegexp.FindAllStringIndex(content, -1)
 	if len(commentIndices) == 0 {
@@ -155,7 +155,7 @@ func (s *Serializer) parseMarkupContent(
 		cPayload := metaIndices[expPayloadIndex]
 		if err := serializer.SetPayload([]byte(cPayload)); err != nil {
 			return nil, e.ErrMarshalCommentPayload.New(err.Error(),
-				fmt.Sprintf("at postion %d:%d", iStart, iEnd))
+				fmt.Sprintf("at position %d:%d", iStart, iEnd))
 		}
 
 		// create comment node.
@@ -173,8 +173,7 @@ func (s *Serializer) parseMarkupContent(
 	return optimizeNodes(nodes), nil
 }
 
-func (s *Serializer) renderNotebook(
-	nodes []documentNode, opts *serializerOptions) (*types.NotebookData, error) {
+func (s *Serializer) renderNotebook(nodes []documentNode) (*types.NotebookData, error) {
 	notebookData := types.NotebookData{
 		Cells:    make([]types.NotebookCellData, 0, len(nodes)),
 		Metadata: make(map[string]interface{}),
@@ -215,8 +214,8 @@ func (n commentNode) render(notebook *types.NotebookData) error {
 }
 
 // WithCommentSerializer adds a new comment serializer.
-func WithCommentSerializer(s ...types.SerializableComment) SerializerOption {
-	return func(o *serializerOptions) {
+func WithCommentSerializer(s ...types.SerializableComment) Option {
+	return func(o *Options) {
 		for i := range s {
 			o.serializers[s[i].Key()] = s[i]
 		}

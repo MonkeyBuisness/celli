@@ -14,9 +14,6 @@ endef
 all: run
 
 run:
-# go run -ldflags="-X main.appVersion=$(APP_VERSION)" main.go version 
-# go run -ldflags="-X main.appVersion=$(APP_VERSION)" main.go convert book2tpl ./test.javabook > test.md  
-# go run -ldflags="-X main.appVersion=$(APP_VERSION)" main.go new javabook --dst ./test/data
 	go run -ldflags="-X main.appVersion=$(APP_VERSION)" main.go convert tpl2book ./test.md > my.javabook
 
 build:
@@ -27,3 +24,10 @@ build:
 	$(call build,linux_arm64,linux,arm64)
 	$(call build,linux_arm,linux,arm)
 	$(call build,windows_amd64.exe,windows,amd64)
+
+test:
+	go test -count=1 ./notebook/*
+
+lint:
+	golangci-lint cache clean
+	golangci-lint run --config .golangci.yml -v --timeout=3m

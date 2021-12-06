@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/MonkeyBuisness/cellementary-cli/notebook/converter"
@@ -12,6 +13,7 @@ import (
 	"github.com/MonkeyBuisness/cellementary-cli/notebook/serializer/comments"
 	"github.com/MonkeyBuisness/cellementary-cli/notebook/template"
 	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	"github.com/MonkeyBuisness/cellementary-cli/notebook/utils"
 )
 
 const (
@@ -19,7 +21,7 @@ const (
 )
 
 // CreateTemplate creates a new template based on the type.
-func CreateTemplate(bookType string, dest string) error {
+func CreateTemplate(bookType, dest string) error {
 	templateData, err := template.NewBookTemplate(types.BookType(strings.ToLower(bookType)))
 	if err != nil {
 		return err
@@ -34,11 +36,11 @@ func CreateTemplate(bookType string, dest string) error {
 		dest = path.Join(dest, defaultTemplateFileName)
 	}
 
-	file, err := os.OpenFile(dest, os.O_CREATE|os.O_WRONLY, 0666)
+	file, err := os.OpenFile(filepath.Clean(dest), os.O_CREATE|os.O_WRONLY, types.DefaultFileMode)
 	if err != nil {
 		return fmt.Errorf("could not open template file: %v", err)
 	}
-	defer file.Close()
+	defer utils.Close(file)
 
 	if _, err := file.Write(templateData); err != nil {
 		return fmt.Errorf("could not write data to the template file: %v", err)
@@ -49,11 +51,11 @@ func CreateTemplate(bookType string, dest string) error {
 
 // ConvertToTemplate converts notebook file to the template implementation.
 func ConvertToTemplate(notebookPath string) error {
-	file, err := os.OpenFile(notebookPath, os.O_RDONLY, 0666)
+	file, err := os.OpenFile(filepath.Clean(notebookPath), os.O_RDONLY, types.DefaultFileMode)
 	if err != nil {
 		return fmt.Errorf("could not open notebook file: %v", err)
 	}
-	defer file.Close()
+	defer utils.Close(file)
 
 	data, err := converter.Proceed(file)
 	if err != nil {
@@ -69,11 +71,11 @@ func ConvertToTemplate(notebookPath string) error {
 
 // ConvertToNotebook converts template file to the notebook implementation.
 func ConvertToNotebook(templatePath string) error {
-	file, err := os.OpenFile(templatePath, os.O_RDONLY, 0666)
+	file, err := os.OpenFile(filepath.Clean(templatePath), os.O_RDONLY, types.DefaultFileMode)
 	if err != nil {
 		return fmt.Errorf("could not open notebook file: %v", err)
 	}
-	defer file.Close()
+	defer utils.Close(file)
 
 	s := serializer.New()
 	notebookData, err := s.SerializeNotebook(file,
@@ -88,9 +90,5 @@ func ConvertToNotebook(templatePath string) error {
 		return fmt.Errorf("could not serialize notebook data: %v", err)
 	}
 
-	if err := json.NewEncoder(os.Stdout).Encode(notebookData); err != nil {
-		return err
-	}
-
-	return nil
+	return json.NewEncoder(os.Stdout).Encode(notebookData)
 }

@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	"github.com/MonkeyBuisness/cellementary-cli/notebook/utils"
 )
 
 const (
@@ -72,7 +74,7 @@ func readURIContent(uri string, content *string) error {
 	if isFile {
 		filePath := strings.TrimPrefix(uri, filePrefix)
 
-		data, err := ioutil.ReadFile(filePath)
+		data, err := ioutil.ReadFile(filepath.Clean(filePath))
 		if err != nil {
 			return err
 		}
@@ -81,11 +83,12 @@ func readURIContent(uri string, content *string) error {
 		return nil
 	}
 
+	//nolint:gosec,gocritic,bodyclose // itэs entirely the responsibility of the author.
 	resp, err := http.Get(uri)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer utils.Close(resp.Body)
 
 	var buf bytes.Buffer
 	if _, err := buf.ReadFrom(resp.Body); err != nil {

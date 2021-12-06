@@ -38,7 +38,7 @@ func NewBookTemplate(bookType types.BookType) ([]byte, error) {
 	)
 
 	var booksSettings map[types.BookType]bookSettings
-	if err := getBookSettings(&booksSettings); err != nil {
+	if err := getBookSettings(booksSettings); err != nil {
 		return nil, fmt.Errorf("could not read book settings: %v", err)
 	}
 
@@ -55,8 +55,8 @@ func NewBookTemplate(bookType types.BookType) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func getBookSettings(settings *map[types.BookType]bookSettings) error {
-	return json.Unmarshal(bookSettingsData, settings)
+func getBookSettings(settings map[types.BookType]bookSettings) error {
+	return json.Unmarshal(bookSettingsData, &settings)
 }
 
 func defaultTemplateFuncs() template.FuncMap {
