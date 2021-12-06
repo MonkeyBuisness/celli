@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	"github.com/MonkeyBuisness/celli/notebook/types"
 )
 
 // NotebookCommentSerializer represents <!-- notebook:{...} --> comment serializer.
@@ -45,7 +45,7 @@ func (s NotebookCommentSerializer) SetPayload(data []byte) error {
 func NewNotebook(meta map[string]interface{}) string {
 	var metaFields string
 	for key, value := range meta {
-		metaFields = fmt.Sprintf("%s\t\"%s\": \"%v\",\n", metaFields, key, value)
+		metaFields = fmt.Sprintf("%s\t%q: \"%v\",\n", metaFields, key, value)
 	}
 	metaFields = strings.TrimSuffix(metaFields, "\n")
 	metaFields = metaFields[:len(metaFields)-1]

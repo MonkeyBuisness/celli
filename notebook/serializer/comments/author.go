@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	"github.com/MonkeyBuisness/celli/notebook/types"
 )
 
 //go:embed authors.tpl.md

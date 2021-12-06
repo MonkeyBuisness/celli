@@ -1,4 +1,4 @@
-module github.com/MonkeyBuisness/cellementary-cli
+module github.com/MonkeyBuisness/celli
 
 go 1.17
 

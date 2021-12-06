@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	e "github.com/MonkeyBuisness/cellementary-cli/notebook/errors"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	e "github.com/MonkeyBuisness/celli/notebook/errors"
+	"github.com/MonkeyBuisness/celli/notebook/types"
 	"github.com/sirupsen/logrus"
 )
 

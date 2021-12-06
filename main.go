@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	notecli "github.com/MonkeyBuisness/cellementary-cli/notebook/cli"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	notecli "github.com/MonkeyBuisness/celli/notebook/cli"
+	"github.com/MonkeyBuisness/celli/notebook/types"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )

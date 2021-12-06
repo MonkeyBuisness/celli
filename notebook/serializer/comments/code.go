@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/utils"
+	"github.com/MonkeyBuisness/celli/notebook/types"
+	"github.com/MonkeyBuisness/celli/notebook/utils"
 )
 
 const (
@@ -74,7 +74,7 @@ func readURIContent(uri string, content *string) error {
 	if isFile {
 		filePath := strings.TrimPrefix(uri, filePrefix)
 
-		data, err := ioutil.ReadFile(filepath.Clean(filePath))
+		data, err := os.ReadFile(filepath.Clean(filePath))
 		if err != nil {
 			return err
 		}

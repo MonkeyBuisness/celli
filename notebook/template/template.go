@@ -9,7 +9,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	"github.com/MonkeyBuisness/celli/notebook/types"
 	"github.com/tcnksm/go-gitconfig"
 )
 

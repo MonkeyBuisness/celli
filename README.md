@@ -29,6 +29,15 @@ $ celli --help
 
 Go to the [Releases](https://github.com/MonkeyBuisness/celli/releases) page and download the latest release to your machine.
 
+### Install from source (Not recommended)
+```sh
+# Go 1.16+
+go install -o github.com/MonkeyBuisness/celli@latest
+
+# Go version < 1.16
+go get -u github.com/MonkeyBuisness/celli@latest
+```
+
 ## Serializable comments
 
 As the main idea of this extension is allow you to create notebooks without VS Code editor, it's very important to provide opportunity to have full control on the notebook creation process.

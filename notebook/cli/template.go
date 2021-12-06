@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/converter"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/serializer"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/serializer/comments"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/template"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/utils"
+	"github.com/MonkeyBuisness/celli/notebook/converter"
+	"github.com/MonkeyBuisness/celli/notebook/serializer"
+	"github.com/MonkeyBuisness/celli/notebook/serializer/comments"
+	"github.com/MonkeyBuisness/celli/notebook/template"
+	"github.com/MonkeyBuisness/celli/notebook/types"
+	"github.com/MonkeyBuisness/celli/notebook/utils"
 )
 
 const (

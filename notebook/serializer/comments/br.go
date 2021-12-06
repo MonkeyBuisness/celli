@@ -1,7 +1,7 @@
 package comments
 
 import (
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	"github.com/MonkeyBuisness/celli/notebook/types"
 )
 
 // BrCommentSerializer represents <!-- br: --> comment serializer.

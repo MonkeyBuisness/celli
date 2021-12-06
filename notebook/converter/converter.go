@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 
-	e "github.com/MonkeyBuisness/cellementary-cli/notebook/errors"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/serializer/comments"
-	"github.com/MonkeyBuisness/cellementary-cli/notebook/types"
+	e "github.com/MonkeyBuisness/celli/notebook/errors"
+	"github.com/MonkeyBuisness/celli/notebook/serializer/comments"
+	"github.com/MonkeyBuisness/celli/notebook/types"
 )
 
 // Proceed converts notebook to the template data.
