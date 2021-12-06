@@ -57,6 +57,7 @@ type nodeKind int
 type commentNode struct {
 	*baseNode
 
+	payload    []byte
 	serializer types.SerializableComment
 }
 
@@ -90,16 +91,13 @@ func (s *Serializer) SerializeNotebook(
 	content := buf.String()
 
 	// parse markup content.
-	nodes, err := s.parseMarkupContent(content, &opts)
-	if err != nil {
-		return nil, err
-	}
+	nodes := s.parseMarkupContent(content, &opts)
 
 	// render nodes to the notebook document data.
 	return s.renderNotebook(nodes)
 }
 
-func (s *Serializer) parseMarkupContent(content string, opts *Options) ([]documentNode, error) {
+func (s *Serializer) parseMarkupContent(content string, opts *Options) []documentNode {
 	// find all HTML comment blocks inside the document.
 	commentIndices := commentRegexp.FindAllStringIndex(content, -1)
 	if len(commentIndices) == 0 {
@@ -153,10 +151,6 @@ func (s *Serializer) parseMarkupContent(content string, opts *Options) ([]docume
 
 		// detect comment payload.
 		cPayload := metaIndices[expPayloadIndex]
-		if err := serializer.SetPayload([]byte(cPayload)); err != nil {
-			return nil, e.ErrMarshalCommentPayload.New(err.Error(),
-				fmt.Sprintf("at position %d:%d", iStart, iEnd))
-		}
 
 		// create comment node.
 		cNode := commentNode{
@@ -166,11 +160,12 @@ func (s *Serializer) parseMarkupContent(content string, opts *Options) ([]docume
 				kind:  nodeKindComment,
 			},
 			serializer: serializer,
+			payload:    []byte(cPayload),
 		}
 		nodes = append(nodes, cNode)
 	}
 
-	return optimizeNodes(nodes), nil
+	return optimizeNodes(nodes)
 }
 
 func (s *Serializer) renderNotebook(nodes []documentNode) (*types.NotebookData, error) {
@@ -210,7 +205,7 @@ func (n textNode) render(notebook *types.NotebookData) error {
 }
 
 func (n commentNode) render(notebook *types.NotebookData) error {
-	return n.serializer.Render(notebook)
+	return n.serializer.Render(notebook, n.payload)
 }
 
 // WithCommentSerializer adds a new comment serializer.

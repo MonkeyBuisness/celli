@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -70,7 +71,7 @@ func ConvertToTemplate(notebookPath string) error {
 }
 
 // ConvertToNotebook converts template file to the notebook implementation.
-func ConvertToNotebook(templatePath string) error {
+func ConvertToNotebook(templatePath string, pretty bool) error {
 	file, err := os.OpenFile(filepath.Clean(templatePath), os.O_RDONLY, types.DefaultFileMode)
 	if err != nil {
 		return fmt.Errorf("could not open notebook file: %v", err)
@@ -90,5 +91,22 @@ func ConvertToNotebook(templatePath string) error {
 		return fmt.Errorf("could not serialize notebook data: %v", err)
 	}
 
-	return json.NewEncoder(os.Stdout).Encode(notebookData)
+	data, err := json.Marshal(notebookData)
+	if err != nil {
+		return err
+	}
+
+	if pretty {
+		var buf bytes.Buffer
+		if err := json.Indent(&buf, data, "", "\t"); err != nil {
+			return err
+		}
+		data = buf.Bytes()
+	}
+
+	if _, err := os.Stdout.Write(data); err != nil {
+		return err
+	}
+
+	return nil
 }

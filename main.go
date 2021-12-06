@@ -17,6 +17,10 @@ var (
 )
 
 func main() {
+	var (
+		prettyBookFlag bool
+	)
+
 	app := &cli.App{
 		Name:    appName,
 		Usage:   "work with cellementaty notebooks in the easiest way",
@@ -59,9 +63,18 @@ func main() {
 						Name:    "tpl2book",
 						Aliases: []string{"t2b"},
 						Usage:   "tpl2book <path to the template file> > destination.notebook",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:        "pretty",
+								Aliases:     []string{"p"},
+								Value:       false,
+								Usage:       "pretty JSON output for notebook document",
+								Destination: &prettyBookFlag,
+							},
+						},
 						Action: func(c *cli.Context) error {
 							templatePath := c.Args().First()
-							return notecli.ConvertToNotebook(templatePath)
+							return notecli.ConvertToNotebook(templatePath, prettyBookFlag)
 						},
 					},
 				},

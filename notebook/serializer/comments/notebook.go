@@ -9,17 +9,11 @@ import (
 )
 
 // NotebookCommentSerializer represents <!-- notebook:{...} --> comment serializer.
-type NotebookCommentSerializer struct {
-	payload notebookCommentPayload
-}
-
-type notebookCommentPayload map[string]interface{}
+type NotebookCommentSerializer struct{}
 
 // NewNotebookCommentSerializer returns new NotebookCommentSerializer instance.
 func NewNotebookCommentSerializer() NotebookCommentSerializer {
-	return NotebookCommentSerializer{
-		payload: make(notebookCommentPayload),
-	}
+	return NotebookCommentSerializer{}
 }
 
 // Key returns the name of the serializable comment key.
@@ -28,17 +22,17 @@ func (s NotebookCommentSerializer) Key() string {
 }
 
 // Render renders serializer data to the notebook.
-func (s NotebookCommentSerializer) Render(notebook *types.NotebookData) error {
-	for key, value := range s.payload {
+func (s NotebookCommentSerializer) Render(notebook *types.NotebookData, payload []byte) error {
+	var meta map[string]interface{}
+	if err := json.Unmarshal(payload, &meta); err != nil {
+		return err
+	}
+
+	for key, value := range meta {
 		notebook.Metadata[key] = value
 	}
 
 	return nil
-}
-
-// SetPayload sets payload data to the serializer.
-func (s NotebookCommentSerializer) SetPayload(data []byte) error {
-	return json.Unmarshal(data, &s.payload)
 }
 
 // NewNotebook creates new <!-- notebook:{} --> comment string.

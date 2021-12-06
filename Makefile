@@ -14,7 +14,7 @@ endef
 all: run
 
 run:
-	go run -ldflags="-X main.appVersion=$(APP_VERSION)" main.go convert tpl2book ./test.md > my.javabook
+	go run -ldflags="-X main.appVersion=$(APP_VERSION)" main.go convert t2b --pretty ./example/story.md > story.javabook
 
 build:
 	rm -rf $(OUT_DIR)

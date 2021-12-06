@@ -37,8 +37,8 @@ func NewBookTemplate(bookType types.BookType) ([]byte, error) {
 		ParseFS(bookTemplate, "*.tpl.md"),
 	)
 
-	var booksSettings map[types.BookType]bookSettings
-	if err := getBookSettings(booksSettings); err != nil {
+	booksSettings, err := getBookSettings()
+	if err != nil {
 		return nil, fmt.Errorf("could not read book settings: %v", err)
 	}
 
@@ -55,8 +55,13 @@ func NewBookTemplate(bookType types.BookType) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func getBookSettings(settings map[types.BookType]bookSettings) error {
-	return json.Unmarshal(bookSettingsData, &settings)
+func getBookSettings() (map[types.BookType]bookSettings, error) {
+	var settings map[types.BookType]bookSettings
+	if err := json.Unmarshal(bookSettingsData, &settings); err != nil {
+		return nil, err
+	}
+
+	return settings, nil
 }
 
 func defaultTemplateFuncs() template.FuncMap {

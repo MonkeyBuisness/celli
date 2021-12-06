@@ -14,9 +14,7 @@ import (
 var authorsTemplate embed.FS
 
 // AuthorCommentSerializer represents <!-- author:[...] --> comment serializer.
-type AuthorCommentSerializer struct {
-	payload []authorCommentPayload
-}
+type AuthorCommentSerializer struct{}
 
 type authorCommentPayload struct {
 	Name   string `json:"name"`
@@ -36,14 +34,19 @@ func (s *AuthorCommentSerializer) Key() string {
 }
 
 // Render renders serializer data to the notebook.
-func (s *AuthorCommentSerializer) Render(notebook *types.NotebookData) error {
+func (s *AuthorCommentSerializer) Render(notebook *types.NotebookData, payload []byte) error {
+	var authors []authorCommentPayload
+	if err := json.Unmarshal(payload, &authors); err != nil {
+		return err
+	}
+
 	t, err := template.ParseFS(authorsTemplate, "*.tpl.md")
 	if err != nil {
 		return fmt.Errorf("could not parse authors template: %v", err)
 	}
 
 	var buf bytes.Buffer
-	if err := t.Execute(&buf, s.payload); err != nil {
+	if err := t.Execute(&buf, authors); err != nil {
 		return fmt.Errorf("could not execute authors template: %v", err)
 	}
 
@@ -54,9 +57,4 @@ func (s *AuthorCommentSerializer) Render(notebook *types.NotebookData) error {
 	})
 
 	return nil
-}
-
-// SetPayload sets payload data to the serializer.
-func (s *AuthorCommentSerializer) SetPayload(data []byte) error {
-	return json.Unmarshal(data, &s.payload)
 }
