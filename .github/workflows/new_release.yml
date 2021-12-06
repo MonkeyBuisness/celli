@@ -34,3 +34,14 @@ jobs:
           body: ${{ steps.changelog_reader.outputs.changes }}
           draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
           prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
+      - name: Build Release Assets
+        id: build_release_assets
+        run: make build
+      - name: Upload Release Assets
+        id: upload_release_assets 
+        uses: dwenegar/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ steps.new_release.outputs.id }}
+          assets_path: ./out/
