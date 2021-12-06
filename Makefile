@@ -1,20 +1,20 @@
-APP_VERSION=0.1.0
+APP_VERSION=0.1.1
 APP_NAME=celli
 OUT_DIR=./out
+BUILD_FLAGS=-ldflags="-X main.appVersion=$(APP_VERSION) -X main.appName=$(APP_NAME)"
 
 ## $(1) - output file name
 ## $(2) - GOOS
 ## $(3) - GOARCH
 define build
-	env GOOS=$(2) GOARCH=$(3) go build \
-	-ldflags="-X main.appVersion=$(APP_VERSION) -X main.appName=$(APP_NAME)" \
+	env GOOS=$(2) GOARCH=$(3) go build $(BUILD_FLAGS) \
 	-o $(OUT_DIR)/$(APP_NAME)_$(1)
 endef
 
 all: run
 
 run:
-	go run -ldflags="-X main.appVersion=$(APP_VERSION)" main.go convert t2b --pretty ./example/story.md > story.javabook
+	go run $(BUILD_FLAGS) main.go convert t2b --pretty ./example/story.md > story.javabook
 
 build:
 	rm -rf $(OUT_DIR)
@@ -31,3 +31,6 @@ test:
 lint:
 	golangci-lint cache clean
 	golangci-lint run --config .golangci.yml -v --timeout=3m
+
+install:
+	go install $(BUILD_FLAGS)
