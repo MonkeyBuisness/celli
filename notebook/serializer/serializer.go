@@ -100,69 +100,53 @@ func (s *Serializer) SerializeNotebook(
 func (s *Serializer) parseMarkupContent(content string, opts *Options) []documentNode {
 	// find all HTML comment blocks inside the document.
 	commentIndices := commentRegexp.FindAllStringIndex(content, -1)
-	if len(commentIndices) == 0 {
-		// insert "fake" comment to the start.
-		commentIndices = [][]int{{}}
-	}
-	// insert a "fake" comment to the end.
-	commentIndices = append(commentIndices, []int{
-		len(content),
-		len(content),
-	})
 
-	nodes := make([]documentNode, 0)
-	// parse each comment to extract meta value.
-	var prevCommentPos int
+	// split document into nodes.
+	docNodes := splicDocIntoNodes(commentIndices, len(content))
 	expKeyIndex := commentMetaRegexp.SubexpIndex(subExpCommentKey)
 	expPayloadIndex := commentMetaRegexp.SubexpIndex(subExpCommentPayload)
-	for i := range commentIndices {
-		iStart, iEnd := commentIndices[i][0], commentIndices[i][1]
 
-		// check if document contains text node before comment.
-		if textNodeLen := iStart - prevCommentPos; textNodeLen > 1 {
-			tNode := newTextNode(prevCommentPos+1, iStart-1, content)
-			nodes = append(nodes, tNode)
+	nodes := make([]documentNode, len(docNodes))
+	for i := range docNodes {
+		node := &docNodes[i]
+		nodeContent := content[node.start:node.end]
+		var docNode documentNode = newTextNode(node.start, node.end, nodeContent)
+
+		switch node.kind {
+		case nodeKindComment:
+			// parse comment to extract meta value.
+			metaIndices := commentMetaRegexp.FindStringSubmatch(nodeContent)
+
+			// check if comment is a not serializable comment.
+			if len(metaIndices) == 0 {
+				break
+			}
+
+			// detect comment key.
+			cKey := metaIndices[expKeyIndex]
+			serializer, ok := opts.serializers[cKey]
+			if !ok {
+				logrus.Warnf("could not serialize comment at position %d:%d: unknown key %s",
+					node.start, node.end, cKey)
+				break
+			}
+
+			// detect comment payload.
+			cPayload := metaIndices[expPayloadIndex]
+
+			// create comment node.
+			docNode = commentNode{
+				baseNode: &baseNode{
+					start: node.start,
+					end:   node.end,
+					kind:  nodeKindComment,
+				},
+				serializer: serializer,
+				payload:    []byte(cPayload),
+			}
 		}
 
-		prevCommentPos = iEnd
-		if iStart == iEnd {
-			continue
-		}
-
-		metaIndices := commentMetaRegexp.FindStringSubmatch(content[iStart:iEnd])
-
-		// check if comment is a not serializable comment.
-		if len(metaIndices) == 0 {
-			tNode := newTextNode(iStart, iEnd, content)
-			nodes = append(nodes, tNode)
-			continue
-		}
-
-		// detect comment key.
-		cKey := metaIndices[expKeyIndex]
-		serializer, ok := opts.serializers[cKey]
-		if !ok {
-			logrus.Warnf("could not serialize comment at position %d:%d: unknown key %s",
-				iStart, iEnd, cKey)
-			tNode := newTextNode(iStart, iEnd, content)
-			nodes = append(nodes, tNode)
-			continue
-		}
-
-		// detect comment payload.
-		cPayload := metaIndices[expPayloadIndex]
-
-		// create comment node.
-		cNode := commentNode{
-			baseNode: &baseNode{
-				start: iStart,
-				end:   iEnd,
-				kind:  nodeKindComment,
-			},
-			serializer: serializer,
-			payload:    []byte(cPayload),
-		}
-		nodes = append(nodes, cNode)
+		nodes[i] = docNode
 	}
 
 	return optimizeNodes(nodes)
@@ -217,6 +201,55 @@ func WithCommentSerializer(s ...types.SerializableComment) Option {
 	}
 }
 
+func splicDocIntoNodes(commentIndices [][]int, docLen int) []baseNode {
+	nodes := make([]baseNode, 0, len(commentIndices))
+
+	commentByIndex := func(index int) (start, end int) {
+		start, end = -1, -1
+
+		for i := range commentIndices {
+			cm := commentIndices[i]
+
+			if index >= cm[0] && index <= cm[1] {
+				start, end = cm[0], cm[1]
+				return
+			}
+		}
+
+		return
+	}
+
+	txtNode := baseNode{
+		start: 0,
+		end:   0,
+		kind:  nodeKindText,
+	}
+	for i := 0; i < docLen; i++ {
+		if commStart, commEnd := commentByIndex(i); commStart != -1 {
+			if txtNode.end != 0 {
+				nodes = append(nodes, txtNode)
+			}
+			nodes = append(nodes, baseNode{
+				start: commStart,
+				end:   commEnd,
+				kind:  nodeKindComment,
+			})
+			i = commEnd
+			txtNode.start = i + 1
+			txtNode.end = 0
+			continue
+		}
+
+		txtNode.end = i
+	}
+
+	if txtNode.end != 0 {
+		nodes = append(nodes, txtNode)
+	}
+
+	return nodes
+}
+
 func newTextNode(start, end int, content string) textNode {
 	return textNode{
 		baseNode: &baseNode{
@@ -224,7 +257,7 @@ func newTextNode(start, end int, content string) textNode {
 			end:   end,
 			kind:  nodeKindText,
 		},
-		content: content[start:end],
+		content: content,
 	}
 }
 
