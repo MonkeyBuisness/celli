@@ -24,6 +24,21 @@ James Gosling, Mike Sheridan, and Patrick Naughton initiated the Java language p
     "content": "package main;\n\npublic class Main {\n\tpublic static void main(String []args) {\n\t\tSystem.out.println(\"Hello world!\");\n\t}\n}"
 } -->
 
+<!-- ycode:{
+    lang: java
+    code: |
+        package main;
+
+        class Main {
+
+            public static void main(String[] args) {
+                System.out.println("This is Java!!!");
+            }
+        }
+    meta:
+        description: Java demo example
+} -->
+
 ## Cell with remote content
 
 ### DemoApp.java

@@ -7,6 +7,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tcnksm/go-gitconfig v0.1.2
 	github.com/urfave/cli/v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

@@ -16,6 +16,14 @@
 			"kind": 2
 		},
 		{
+			"languageId": "java",
+			"content": "package main;\n\nclass Main {\n\n    public static void main(String[] args) {\n        System.out.println(\"This is Java!!!\");\n    }\n}\n",
+			"kind": 2,
+			"metadata": {
+				"description": "Java demo example"
+			}
+		},
+		{
 			"languageId": "markdown",
 			"content": "## Cell with remote content\n\n### DemoApp.java",
 			"kind": 1

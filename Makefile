@@ -1,4 +1,4 @@
-APP_VERSION=0.1.1
+APP_VERSION=0.2.0
 APP_NAME=celli
 OUT_DIR=./out
 BUILD_FLAGS=-ldflags="-X main.appVersion=$(APP_VERSION) -X main.appName=$(APP_NAME)"
@@ -14,7 +14,7 @@ endef
 all: run
 
 run:
-	go run $(BUILD_FLAGS) main.go convert t2b --pretty ./example/story.md > story.javabook
+	go run $(BUILD_FLAGS) main.go convert t2b --pretty ./example/story.md > ./example/story.javabook
 
 build:
 	rm -rf $(OUT_DIR)
