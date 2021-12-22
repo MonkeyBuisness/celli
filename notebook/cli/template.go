@@ -85,6 +85,7 @@ func ConvertToNotebook(templatePath string, pretty bool) error {
 			comments.NewBrCommentSerializer(),
 			comments.NewNotebookCommentSerializer(),
 			comments.NewAuthorCommentSerializer(),
+			comments.NewYCodeCommentSerializer(),
 		),
 	)
 	if err != nil {
